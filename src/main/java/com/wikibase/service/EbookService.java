@@ -5,6 +5,7 @@ import com.wikibase.domain.EbookExample;
 import com.wikibase.mapper.EbookMapper;
 import com.wikibase.req.EbookReq;
 import com.wikibase.resp.EbookResp;
+import com.wikibase.util.CopyUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -24,12 +25,12 @@ public class EbookService {
         criteria.andNameLike("%"+req.getName()+"%");
         List<Ebook> ebookList = ebookMapper.selectByExample(ebookExample);
 
-        List<EbookResp> ebookRespList = new ArrayList<>();
-        for (Ebook ebook:ebookList){
-            EbookResp ebookResp = new EbookResp();
-            BeanUtils.copyProperties(ebook,ebookResp);
-            ebookRespList.add(ebookResp);
-        }
+        // List Copy
+        List<EbookResp> ebookRespList = CopyUtil.copyList(ebookList,EbookResp.class);
+
+        // Individual Copy
+        //EbookResp ebookResp = CopyUtil.copy(ebook,EbookResp.class);
+
         return ebookRespList;
     }
 }
