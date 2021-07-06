@@ -2,6 +2,7 @@ package com.wikibase.controller;
 
 import com.wikibase.domain.Demo;
 import com.wikibase.domain.Ebook;
+import com.wikibase.resp.CommonResp;
 import com.wikibase.service.DemoService;
 import com.wikibase.service.EbookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,10 @@ public class EbookController {
     private EbookService ebookService;
 
     @GetMapping("/list")
-    public List<Ebook> list(){
-        return ebookService.list();
+    public CommonResp list(){
+        CommonResp<List<Ebook>> resp = new CommonResp<>();
+        List<Ebook> list = ebookService.list();
+        resp.setContent(list);
+        return resp;
     }
 }
