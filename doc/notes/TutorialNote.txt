@@ -1,0 +1,3 @@
+持久层：
+    Mybatis：半自动，自己写sql
+    Hibernate：全自动
