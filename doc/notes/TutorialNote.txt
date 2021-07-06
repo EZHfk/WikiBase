@@ -1,3 +1,11 @@
 持久层：
     Mybatis：半自动，自己写sql
     Hibernate：全自动
+
+Free-Mybatis-Plugin可以用来跳转xml和mapper
+
+启动类添加MapperScan以扫描mapper层
+application.yml添加xml路径以扫描xml文件
+
+@Resource jdk自带的注入mapper
+@Autowired spring的注入mapper
