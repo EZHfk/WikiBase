@@ -2,4 +2,4 @@ server:
   port: 8880
 
 test:
-  hello: HelloWorld
+  hello: HelloWorld1
