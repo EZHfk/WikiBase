@@ -9,3 +9,7 @@ application.yml添加xml路径以扫描xml文件
 
 @Resource jdk自带的注入mapper
 @Autowired spring的注入mapper
+
+启动web：
+    cd web
+    npm run serve
