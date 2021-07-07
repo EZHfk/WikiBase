@@ -29,11 +29,4 @@ public class EbookController {
         return resp;
     }
 
-    @GetMapping("/listAll")
-    public CommonResp listAll(){
-        CommonResp<List<EbookResp>> resp = new CommonResp<>();
-        List<EbookResp> list = ebookService.listAll();
-        resp.setContent(list);
-        return resp;
-    }
 }
