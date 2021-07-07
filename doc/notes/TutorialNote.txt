@@ -19,3 +19,7 @@ filter & interceptor:
     过滤器：在tomcat容器中，范围更大，先执行
     拦截器：需要在WebMvcConfiguration中注册，特定如login、权限校验等接口不拦截，要exclude掉
     过滤器启动---》拦截器启动---》拦截器结束---》过滤器结束
+
+PageHelper:
+    第一页编号为1，不是0
+    只对第一个碰到的select语句起作用
