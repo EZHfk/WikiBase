@@ -9,6 +9,7 @@ import com.wikibase.domain.EbookExample;
 import com.wikibase.mapper.EbookMapper;
 import com.wikibase.req.EbookReq;
 import com.wikibase.resp.EbookResp;
+import com.wikibase.resp.PageResp;
 import com.wikibase.util.CopyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +28,14 @@ public class EbookService {
     @Resource
     private EbookMapper ebookMapper;
 
-    public List<EbookResp> list(EbookReq req){
+    public PageResp<EbookResp> list(EbookReq req){
         EbookExample ebookExample = new EbookExample();
         EbookExample.Criteria criteria = ebookExample.createCriteria();
         if(!ObjectUtils.isEmpty(req.getName())) {
             criteria.andNameLike("%" + req.getName() + "%");
         }
 
-        PageHelper.startPage(1,3);
+        PageHelper.startPage(req.getPage(),req.getSize());
         List<Ebook> ebookList = ebookMapper.selectByExample(ebookExample);
 
         PageInfo<Ebook> pageInfo = new PageInfo<>(ebookList);
@@ -46,7 +47,9 @@ public class EbookService {
 
         // Individual Copy
         //EbookResp ebookResp = CopyUtil.copy(ebook,EbookResp.class);
-
-        return ebookRespList;
+        PageResp<EbookResp> pageResp = new PageResp<>();
+        pageResp.setTotal(pageInfo.getTotal());
+        pageResp.setList(ebookRespList);
+        return pageResp;
     }
 }

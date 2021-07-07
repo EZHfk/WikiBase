@@ -5,6 +5,7 @@ import com.wikibase.domain.Ebook;
 import com.wikibase.req.EbookReq;
 import com.wikibase.resp.CommonResp;
 import com.wikibase.resp.EbookResp;
+import com.wikibase.resp.PageResp;
 import com.wikibase.service.DemoService;
 import com.wikibase.service.EbookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,8 @@ public class EbookController {
 
     @GetMapping("/list")
     public CommonResp list(EbookReq req){
-        CommonResp<List<EbookResp>> resp = new CommonResp<>();
-        List<EbookResp> list = ebookService.list(req);
+        CommonResp<PageResp<EbookResp>> resp = new CommonResp<>();
+        PageResp<EbookResp> list = ebookService.list(req);
         resp.setContent(list);
         return resp;
     }
