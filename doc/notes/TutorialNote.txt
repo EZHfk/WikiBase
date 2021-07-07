@@ -13,3 +13,9 @@ application.yml添加xml路径以扫描xml文件
 启动web：
     cd web
     npm run serve
+
+
+filter & interceptor:
+    过滤器：在tomcat容器中，范围更大，先执行
+    拦截器：需要在WebMvcConfiguration中注册，特定如login、权限校验等接口不拦截，要exclude掉
+    过滤器启动---》拦截器启动---》拦截器结束---》过滤器结束
