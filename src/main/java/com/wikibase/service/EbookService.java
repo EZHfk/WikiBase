@@ -33,4 +33,10 @@ public class EbookService {
 
         return ebookRespList;
     }
+
+    public List<EbookResp> listAll(){
+        List<Ebook> ebooks = ebookMapper.selectByExample(null);
+        List<EbookResp> ebookRespList = CopyUtil.copyList(ebooks,EbookResp.class);
+        return ebookRespList;
+    }
 }
