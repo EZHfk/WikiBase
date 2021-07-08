@@ -524,10 +524,19 @@
       const modalLoading = ref(false);
       const handleModalOk = () => {
         modalLoading.value=true;
-        setTimeout(()=>{
-          modalVisible.value=false;
-          modalLoading.value=false;
-        },2000);
+        axios.post("http://127.0.0.1:8880/ebook/save",ebook.value).then((response)=>{
+          const data = response.data; //data = CommonResp
+          if(data.success){
+            modalVisible.value=false;
+            modalLoading.value=false;
+
+            // Restart List
+            handleQuery({
+              page:pagination.value.current,
+              size:pagination.value.pageSize
+            });
+          }
+        });
       }
       /**
        * 编辑

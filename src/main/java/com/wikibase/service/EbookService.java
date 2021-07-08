@@ -2,23 +2,20 @@ package com.wikibase.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.mysql.cj.util.StringUtils;
-import com.wikibase.WikibaseApplication;
 import com.wikibase.domain.Ebook;
 import com.wikibase.domain.EbookExample;
 import com.wikibase.mapper.EbookMapper;
-import com.wikibase.req.EbookReq;
+import com.wikibase.req.EbookQueryReq;
+import com.wikibase.req.EbookSaveReq;
 import com.wikibase.resp.EbookResp;
 import com.wikibase.resp.PageResp;
 import com.wikibase.util.CopyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,7 +25,7 @@ public class EbookService {
     @Resource
     private EbookMapper ebookMapper;
 
-    public PageResp<EbookResp> list(EbookReq req){
+    public PageResp<EbookResp> list(EbookQueryReq req){
         EbookExample ebookExample = new EbookExample();
         EbookExample.Criteria criteria = ebookExample.createCriteria();
         if(!ObjectUtils.isEmpty(req.getName())) {
@@ -51,5 +48,21 @@ public class EbookService {
         pageResp.setTotal(pageInfo.getTotal());
         pageResp.setList(ebookRespList);
         return pageResp;
+    }
+
+    /**
+     * Save Post Edit
+     */
+    public void save(EbookSaveReq req){
+        Ebook ebook = CopyUtil.copy(req,Ebook.class);
+
+        if(ObjectUtils.isEmpty(req.getId())){
+            //New Post
+            ebookMapper.insert(ebook);
+        }
+        else {
+            //Update
+            ebookMapper.updateByPrimaryKey(ebook);
+        }
     }
 }
