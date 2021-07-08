@@ -413,7 +413,7 @@
 <script lang="ts">
   import { defineComponent, onMounted, ref } from 'vue';
   import axios from 'axios';
-  // import { message } from 'ant-design-vue';
+  import { message } from 'ant-design-vue';
   // import {Tool} from "@/util/tool";
 
   export default defineComponent({
@@ -476,9 +476,14 @@
         }).then((response)=>{
           loading.value = false;
           const data = response.data;
-          ebooks.value = data.content.list;
-          pagination.value.current = params.page;
-          pagination.value.total = data.content.total;
+          if(data.success){
+            ebooks.value = data.content.list;
+            pagination.value.current = params.page;
+            pagination.value.total = data.content.total;
+          }
+          else{
+            message.error(data.message);
+          }
         });
       };
 
@@ -528,16 +533,19 @@
       const handleModalOk = () => {
         modalLoading.value=true;
         axios.post("http://127.0.0.1:8880/ebook/save",ebook.value).then((response)=>{
+          modalLoading.value=false;
           const data = response.data; //data = CommonResp
           if(data.success){
             modalVisible.value=false;
-            modalLoading.value=false;
 
             // Restart List
             handleQuery({
               page:pagination.value.current,
               size:pagination.value.pageSize
             });
+          }
+          else{
+            message.error(data.message);
           }
         });
       }
