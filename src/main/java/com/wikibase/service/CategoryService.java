@@ -31,10 +31,8 @@ public class CategoryService {
 
     public PageResp<CategoryResp> list(CategoryQueryReq req){
         CategoryExample categoryExample = new CategoryExample();
+        categoryExample.setOrderByClause("sort asc");
         CategoryExample.Criteria criteria = categoryExample.createCriteria();
-//        if(!ObjectUtils.isEmpty(req.getName())) {
-//            criteria.andNameLike("%" + req.getName() + "%");
-//        }
 
         PageHelper.startPage(req.getPage(),req.getSize());
         List<Category> categoryList = categoryMapper.selectByExample(categoryExample);
@@ -52,6 +50,21 @@ public class CategoryService {
         pageResp.setTotal(pageInfo.getTotal());
         pageResp.setList(categoryRespList);
         return pageResp;
+    }
+
+    public List<CategoryResp> all(){
+        CategoryExample categoryExample = new CategoryExample();
+        categoryExample.setOrderByClause("sort asc");
+        List<Category> categoryList = categoryMapper.selectByExample(categoryExample);
+
+        PageInfo<Category> pageInfo = new PageInfo<>(categoryList);
+        LOG.info("Total Result Num: {}",pageInfo.getTotal());
+        LOG.info("Total Page Num: {}",pageInfo.getPages());
+
+        // List Copy
+        List<CategoryResp> categoryRespList = CopyUtil.copyList(categoryList,CategoryResp.class);
+
+        return categoryRespList;
     }
 
     /**

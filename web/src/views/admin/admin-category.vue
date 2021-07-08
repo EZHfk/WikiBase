@@ -11,7 +11,7 @@
             </a-input>
           </a-form-item>
           <a-form-item>
-            <a-button type="primary" @click="handleQuery({page: 1, size: pagination.pageSize})">
+            <a-button type="primary" @click="handleQuery()">
               查询
             </a-button>
           </a-form-item>
@@ -25,10 +25,10 @@
       <a-table
               :columns="columns"
               :row-key="record => record.id"
-              :data-source="categorys"
-              :pagination="pagination"
+              :data-source="level1"
               :loading="loading"
-              @change="handleTableChange"
+              :pagination="false"
+              :defaultExpandAllRows="true"
       >
         <template #cover="{ text: cover }">
           <img v-if="cover" :src="cover" alt="avatar" />
@@ -76,14 +76,10 @@
       </a-form-item>
       <a-form-item label="顺序">
         <a-input v-model:value="category.sort" />
-<!--        <a-cascader-->
-<!--                v-model:value="category.category1Id"-->
-<!--                :field-names="{ label: 'name', value: 'id', children: 'children' }"-->
-<!--                :options="level1"-->
-<!--        />-->
       </a-form-item>
     </a-form>
   </a-modal>
+
 </template>
 
 <script lang="ts">
@@ -98,11 +94,6 @@
       const param = ref();
       param.value = {};
       const categorys = ref();
-      const pagination = ref({
-        current: 1,
-        pageSize: 4,
-        total: 0
-      });
       const loading = ref(false);
 
       const columns = [
@@ -127,24 +118,33 @@
       ];
 
       /**
+       * 一级分类树，children属性就是二级分类
+       * [{
+       *   id: "",
+       *   name: "",
+       *   children: [{
+       *     id: "",
+       *     name: "",
+       *   }]
+       * }]
+       */
+      const level1 = ref(); // 一级分类树，children属性就是二级分类
+
+      /**
        * 数据查询
        **/
-      const handleQuery = (params: any) => {
+      const handleQuery = () => {
         loading.value = true;
         // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
-        axios.get("http://127.0.0.1:8880/category/list",{
-          params:{
-            page:params.page,
-            size:params.size,
-            name:param.value.name
-          }
-        }).then((response)=>{
+        level1.value=[];
+        axios.get("http://127.0.0.1:8880/category/all",).then((response)=>{
           loading.value = false;
           const data = response.data;
           if(data.success){
-            categorys.value = data.content.list;
-            pagination.value.current = params.page;
-            pagination.value.total = data.content.total;
+            categorys.value = data.content;
+            level1.value=Tool.array2Tree(categorys.value,0);
+            console.log("原始数组：",category.value);
+            console.log("树形结构：",level1);
           }
           else{
             message.error(data.message);
@@ -152,46 +152,7 @@
         });
       };
 
-      /**
-       * 表格点击页码时触发
-       */
-      const handleTableChange = (pagination: any) => {
-        console.log("看看自带的分页参数都有啥：" + pagination);
-        handleQuery({
-          page: pagination.current,
-          size: pagination.pageSize
-        });
-      };
 
-      // // -------- 表单 ---------
-      // /**
-      //  * 数组，[100, 101]对应：前端开发 / Vue
-      //  */
-      // const categoryIds = ref();
-      // const category = ref();
-      // const modalVisible = ref(false);
-      // const modalLoading = ref(false);
-      // const handleModalOk = () => {
-      //   modalLoading.value = true;
-      //   category.value.category1Id = categoryIds.value[0];
-      //   category.value.category2Id = categoryIds.value[1];
-      //   axios.post("/category/save", category.value).then((response) => {
-      //     modalLoading.value = false;
-      //     const data = response.data; // data = commonResp
-      //     if (data.success) {
-      //       modalVisible.value = false;
-      //
-      //       // 重新加载列表
-      //       handleQuery({
-      //         page: pagination.value.current,
-      //         size: pagination.value.pageSize,
-      //       });
-      //     } else {
-      //       message.error(data.message);
-      //     }
-      //   });
-      // };
-      //
       const category = ref({});
       const modalVisible = ref(false);
       const modalLoading = ref(false);
@@ -204,16 +165,15 @@
             modalVisible.value=false;
 
             // Restart List
-            handleQuery({
-              page:pagination.value.current,
-              size:pagination.value.pageSize
-            });
+            handleQuery();
           }
           else{
             message.error(data.message);
           }
         });
-      }
+      };
+
+
       /**
        * 编辑
        */
@@ -236,10 +196,7 @@
           const data = response.data; // data = commonResp
           if (data.success) {
             // 重新加载列表
-            handleQuery({
-              page: pagination.value.current,
-              size: pagination.value.pageSize,
-            });
+            handleQuery();
           }
         });
       };
@@ -286,20 +243,16 @@
       // };
 
       onMounted(() => {
-        handleQuery({
-          page:1,
-          size:pagination.value.pageSize
-        });
+        handleQuery();
 
       });
 
       return {
         param,
         categorys,
-        pagination,
+
         columns,
         loading,
-        handleTableChange,
         handleQuery,
         // getCategoryName,
         //
@@ -311,7 +264,7 @@
         modalLoading,
         handleModalOk,
         // categoryIds,
-        // level1,
+        level1,
         //
         handleDelete
       }
