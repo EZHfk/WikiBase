@@ -61,12 +61,6 @@
 <!--    </a-layout-content>-->
 <!--  </a-layout>-->
 
-<!--  <a-modal-->
-<!--          title="电子书表单"-->
-<!--          v-model:visible="modalVisible"-->
-<!--          :confirm-loading="modalLoading"-->
-<!--          @ok="handleModalOk"-->
-<!--  >-->
 <!--    <a-form :model="ebook" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">-->
 <!--      <a-form-item label="封面">-->
 <!--        <a-input v-model:value="ebook.cover" />-->
@@ -382,6 +376,35 @@
       </a-table>
     </a-layout-content>
   </a-layout>
+  <a-modal
+          title="电子书表单"
+          v-model:visible="modalVisible"
+          :confirm-loading="modalLoading"
+          @ok="handleModalOk"
+  >
+    <a-form :model="ebook" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+      <a-form-item label="封面">
+        <a-input v-model:value="ebook.cover" />
+      </a-form-item>
+      <a-form-item label="名称">
+        <a-input v-model:value="ebook.name" />
+      </a-form-item>
+      <a-form-item label="分类1">
+        <a-input v-model:value="ebook.category1Id" />
+<!--        <a-cascader-->
+<!--                v-model:value="ebook.category1Id"-->
+<!--                :field-names="{ label: 'name', value: 'id', children: 'children' }"-->
+<!--                :options="level1"-->
+<!--        />-->
+      </a-form-item>
+      <a-form-item label="分类2">
+        <a-input v-model:value="ebook.category2Id"/>
+      </a-form-item>
+      <a-form-item label="描述">
+        <a-input v-model:value="ebook.description" type="textarea" />
+      </a-form-item>
+    </a-form>
+  </a-modal>
 </template>
 
 <script lang="ts">
@@ -496,14 +519,24 @@
       //   });
       // };
       //
-      // /**
-      //  * 编辑
-      //  */
-      // const edit = (record: any) => {
-      //   modalVisible.value = true;
-      //   ebook.value = Tool.copy(record);
-      //   categoryIds.value = [ebook.value.category1Id, ebook.value.category2Id]
-      // };
+      const ebook = ref({});
+      const modalVisible = ref(false);
+      const modalLoading = ref(false);
+      const handleModalOk = () => {
+        modalLoading.value=true;
+        setTimeout(()=>{
+          modalVisible.value=false;
+          modalLoading.value=false;
+        },2000);
+      }
+      /**
+       * 编辑
+       */
+      const edit = (record: any) => {
+        modalVisible.value = true;
+        ebook.value=record;
+        // categoryIds.value = [ebook.value.category1Id, ebook.value.category2Id]
+      };
       //
       // /**
       //  * 新增
@@ -583,17 +616,17 @@
         pagination,
         columns,
         loading,
-        handleTableChange
+        handleTableChange,
         // handleQuery,
         // getCategoryName,
         //
-        // edit,
+        edit,
         // add,
         //
-        // ebook,
-        // modalVisible,
-        // modalLoading,
-        // handleModalOk,
+        ebook,
+        modalVisible,
+        modalLoading,
+        handleModalOk
         // categoryIds,
         // level1,
         //
