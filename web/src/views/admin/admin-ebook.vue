@@ -320,22 +320,25 @@
   <a-layout>
     <a-layout-content :style="{ background:'#fff', padding: '0 24px', margin: '24px', minHeight: '280px' }">
       <p>
-        <a-form layout="inline" :model="param">
-          <a-form-item>
-            <a-input v-model:value="param.name" placeholder="名称">
-            </a-input>
-          </a-form-item>
-          <a-form-item>
-            <a-button type="primary" @click="handleQuery({page: 1, size: pagination.pageSize})">
-              查询
-            </a-button>
-          </a-form-item>
-          <a-form-item>
-            <a-button type="primary" @click="add()">
-              新增
-            </a-button>
-          </a-form-item>
-        </a-form>
+        <a-button type="primary" @click="add()" size="large">
+          新增
+        </a-button>
+<!--        <a-form layout="inline" :model="param">-->
+<!--          <a-form-item>-->
+<!--            <a-input v-model:value="param.name" placeholder="名称">-->
+<!--            </a-input>-->
+<!--          </a-form-item>-->
+<!--          <a-form-item>-->
+<!--            <a-button type="primary" @click="handleQuery({page: 1, size: pagination.pageSize})">-->
+<!--              查询-->
+<!--            </a-button>-->
+<!--          </a-form-item>-->
+<!--          <a-form-item>-->
+<!--            <a-button type="primary" @click="add()" size="large">-->
+<!--              新增-->
+<!--            </a-button>-->
+<!--          </a-form-item>-->
+<!--        </a-form>-->
       </p>
       <a-table
               :columns="columns"
@@ -546,15 +549,15 @@
         ebook.value=record;
         // categoryIds.value = [ebook.value.category1Id, ebook.value.category2Id]
       };
-      //
-      // /**
-      //  * 新增
-      //  */
-      // const add = () => {
-      //   modalVisible.value = true;
-      //   ebook.value = {};
-      // };
-      //
+
+      /**
+       * 新增
+       */
+      const add = () => {
+        modalVisible.value = true;
+        ebook.value = {};
+      };
+
       // const handleDelete = (id: number) => {
       //   axios.delete("/ebook/delete/" + id).then((response) => {
       //     const data = response.data; // data = commonResp
@@ -630,7 +633,7 @@
         // getCategoryName,
         //
         edit,
-        // add,
+        add,
         //
         ebook,
         modalVisible,
