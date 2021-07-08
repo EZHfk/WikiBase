@@ -558,21 +558,19 @@
         ebook.value = {};
       };
 
-      // const handleDelete = (id: number) => {
-      //   axios.delete("/ebook/delete/" + id).then((response) => {
-      //     const data = response.data; // data = commonResp
-      //     if (data.success) {
-      //       // 重新加载列表
-      //       handleQuery({
-      //         page: pagination.value.current,
-      //         size: pagination.value.pageSize,
-      //       });
-      //     } else {
-      //       message.error(data.message);
-      //     }
-      //   });
-      // };
-      //
+      const handleDelete = (id: number) => {
+        axios.delete("http://127.0.0.1:8880/ebook/delete/" + id).then((response) => {
+          const data = response.data; // data = commonResp
+          if (data.success) {
+            // 重新加载列表
+            handleQuery({
+              page: pagination.value.current,
+              size: pagination.value.pageSize,
+            });
+          }
+        });
+      };
+
       // const level1 =  ref();
       // let categorys: any;
       // /**
@@ -638,11 +636,11 @@
         ebook,
         modalVisible,
         modalLoading,
-        handleModalOk
+        handleModalOk,
         // categoryIds,
         // level1,
         //
-        // handleDelete
+        handleDelete
       }
     }
   });

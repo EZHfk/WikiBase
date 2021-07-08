@@ -70,4 +70,11 @@ public class EbookService {
             ebookMapper.updateByPrimaryKey(ebook);
         }
     }
+
+    /**
+     * Delete Post
+     */
+    public void delete(Long id){
+        ebookMapper.deleteByPrimaryKey(id);
+    }
 }
