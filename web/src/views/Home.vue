@@ -83,26 +83,38 @@ export default defineComponent({
       };
 
       const isShowWelcome = ref(true);
+      let categoryId2 = 0;
 
-      const handleClick=(value:any)=>{
-          isShowWelcome.value = value.key == 'welcome';
-          console.log("menu click",value);
-      }
-
-
-
-      onMounted(()=> {
-          handleQueryCategory();
+      const handleQueryEbook=()=>{
           axios.get("http://127.0.0.1:8880/ebook/list",{
               params:{
                   page:1,
-                  size:1000
+                  size:1000,
+                  categoryId2:categoryId2
               }
           }).then((response)=>{
               const data = response.data;
               ebooks.value=data.content.list;
               //ebook1.books = data.content;
           });
+      };
+
+      const handleClick=(value:any)=>{
+          if(value.key=='welcome'){
+              isShowWelcome.value=true;
+          }
+          else{
+              categoryId2=value.key;
+              isShowWelcome.value=false;
+              handleQueryEbook();
+          }
+          console.log("menu click",value);
+      };
+
+
+      onMounted(()=> {
+          handleQueryCategory();
+          // handleQueryEbook();
       });
 
       const pagination = {
