@@ -7,10 +7,8 @@
                 @click="handleClick"
         >
             <a-menu-item key="welcome">
-                <router-link :to="'/'">
                 <MailOutlined />
                 <span>欢迎</span>
-                </router-link>
             </a-menu-item>
             <a-sub-menu v-for="item in level1" :key="item.id" :disabled="false">
                 <template v-slot:title>
@@ -26,26 +24,29 @@
         </a-menu>
     </a-layout-sider>
         <a-layout-content :style="{ padding: '0 24px', minHeight: '280px' }">
-            <a-list item-layout="vertical" size="large" :grid="{ gutter: 20, column: 3 }" :pagination="pagination" :data-source="ebooks">
-                <template #renderItem="{ item }">
-                    <a-list-item key="item.name">
-                        <template #actions>
+
+    </a-layout-content>
+        <div class="welcome" v-show="isShowWelcome">
+            <h1>WELCOME!</h1>
+        </div>
+        <a-list v-show="!isShowWelcome" item-layout="vertical" size="large" :grid="{ gutter: 20, column: 3 }" :pagination="pagination" :data-source="ebooks">
+            <template #renderItem="{ item }">
+                <a-list-item key="item.name">
+                    <template #actions>
           <span v-for="{ type, text } in actions" :key="type">
             <component v-bind:is="type" style="margin-right: 8px" />
             {{ text }}
           </span>
+                    </template>
+                    <a-list-item-meta :description="item.description">
+                        <template #title>
+                            <a :href="item.href">{{ item.name }}</a>
                         </template>
-                        <a-list-item-meta :description="item.description">
-                            <template #title>
-                                <a :href="item.href">{{ item.name }}</a>
-                            </template>
-                            <template #avatar><a-avatar :src="item.cover" /></template>
-                        </a-list-item-meta>
-                    </a-list-item>
-                </template>
-            </a-list>
-
-    </a-layout-content>
+                        <template #avatar><a-avatar :src="item.cover" /></template>
+                    </a-list-item-meta>
+                </a-list-item>
+            </template>
+        </a-list>
     </a-layout>
 </template>
 
@@ -81,9 +82,13 @@ export default defineComponent({
           });
       };
 
-      const handleClick=()=>{
-          console.log("menu click");
+      const isShowWelcome = ref(true);
+
+      const handleClick=(value:any)=>{
+          isShowWelcome.value = value.key == 'welcome';
+          console.log("menu click",value);
       }
+
 
 
       onMounted(()=> {
@@ -117,7 +122,8 @@ export default defineComponent({
           pagination,
           actions,
           handleClick,
-          level1
+          level1,
+          isShowWelcome
       }
   }
 });
