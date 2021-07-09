@@ -74,16 +74,12 @@
       <a-form-item label="名称">
         <a-input v-model:value="ebook.name" />
       </a-form-item>
-      <a-form-item label="分类1">
-        <a-input v-model:value="ebook.category1Id" />
-<!--        <a-cascader-->
-<!--                v-model:value="ebook.category1Id"-->
-<!--                :field-names="{ label: 'name', value: 'id', children: 'children' }"-->
-<!--                :options="level1"-->
-<!--        />-->
-      </a-form-item>
-      <a-form-item label="分类2">
-        <a-input v-model:value="ebook.category2Id"/>
+      <a-form-item label="分类">
+        <a-cascader
+                v-model:value="ebook.categoryIds"
+                :field-names="{ label: 'name', value: 'id', children: 'children' }"
+                :options="level1"
+        />
       </a-form-item>
       <a-form-item label="描述">
         <a-input v-model:value="ebook.description" type="textarea" />
@@ -210,7 +206,8 @@
       //   });
       // };
       //
-      const ebook = ref({});
+      const categoryIds = ref();
+      const ebook = ref();
       const modalVisible = ref(false);
       const modalLoading = ref(false);
       const handleModalOk = () => {
@@ -220,7 +217,8 @@
           const data = response.data; //data = CommonResp
           if(data.success){
             modalVisible.value=false;
-
+            ebook.value.categoryId1 = categoryIds.value[0];
+            ebook.value.categoryId2 = categoryIds.value[1];
             // Restart List
             handleQuery({
               page:pagination.value.current,
@@ -238,7 +236,7 @@
       const edit = (record: any) => {
         modalVisible.value = true;
         ebook.value=Tool.copy(record);
-        // categoryIds.value = [ebook.value.category1Id, ebook.value.category2Id]
+        categoryIds.value = [ebook.value.category1Id, ebook.value.category2Id]
       };
 
       /**
@@ -258,6 +256,30 @@
               page: pagination.value.current,
               size: pagination.value.pageSize,
             });
+          }
+        });
+      };
+
+      const level1 = ref(); // 一级分类树，children属性就是二级分类
+
+      /**
+       * 数据查询
+       **/
+      const handleQueryCategory = () => {
+        loading.value = true;
+        // 如果不清空现有数据，则编辑保存重新加载数据后，再点编辑，则列表显示的还是编辑前的数据
+        level1.value=[];
+        axios.get("http://127.0.0.1:8880/category/all",).then((response)=>{
+          loading.value = false;
+          const data = response.data;
+          if(data.success){
+            const categorys = data.content;
+            level1.value=Tool.array2Tree(categorys,0);
+            console.log("原始数组：",categorys);
+            console.log("树形结构：",level1);
+          }
+          else{
+            message.error(data.message);
           }
         });
       };
@@ -304,6 +326,7 @@
       // };
 
       onMounted(() => {
+        handleQueryCategory();
         handleQuery({
           page:1,
           size:pagination.value.pageSize
@@ -328,8 +351,8 @@
         modalVisible,
         modalLoading,
         handleModalOk,
-        // categoryIds,
-        // level1,
+        categoryIds,
+        level1,
         //
         handleDelete
       }
