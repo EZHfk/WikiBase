@@ -175,6 +175,20 @@
       };
 
       /**
+       * 内容查询
+       **/
+      const handleQueryContent = () => {
+        axios.get("http://127.0.0.1:8880/doc/find-content/" + doc.value.id).then((response) => {
+          const data = response.data;
+          if (data.success) {
+            editor.txt.html(data.content)
+          } else {
+            message.error(data.message);
+          }
+        });
+      };
+
+      /**
        * 将某节点及其子孙节点全部置为disabled
        */
       const setDisable = (treeSelectData: any, id: any) => {
@@ -258,7 +272,7 @@
           modalLoading.value=false;
           const data = response.data; //data = CommonResp
           if(data.success){
-            modalVisible.value=false;
+            message.success("保存成功");
 
             // Restart List
             handleQuery();
@@ -274,8 +288,11 @@
        * 编辑
        */
       const edit = (record: any) => {
+        editor.txt.html("");
+        console.log("In Edit");
         modalVisible.value = true;
         doc.value=Tool.copy(record);
+        handleQueryContent();
         // docIds.value = [doc.value.doc1Id, doc.value.doc2Id]
 
         // 不能选择当前节点及其所有子孙节点，作为父节点，会使树断开

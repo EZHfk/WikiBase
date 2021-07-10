@@ -1,5 +1,6 @@
 package com.wikibase.controller;
 
+import com.sun.jarsigner.ContentSigner;
 import com.wikibase.req.DocQueryReq;
 import com.wikibase.req.DocSaveReq;
 import com.wikibase.resp.DocResp;
@@ -28,11 +29,11 @@ public class DocController {
         return resp;
     }
 
-    @GetMapping("/list")
-    public CommonResp list(@Valid DocQueryReq req){
-        CommonResp<PageResp<DocResp>> resp = new CommonResp<>();
-        PageResp<DocResp> list = docService.list(req);
-        resp.setContent(list);
+    @GetMapping("/find-content/{id}")
+    public CommonResp findContent(@PathVariable Long id){
+        CommonResp<String> resp = new CommonResp<>();
+        String content = docService.findContent(id);
+        resp.setContent(content);
         return resp;
     }
 
