@@ -244,7 +244,8 @@
 
       const treeSelectData = ref();
       treeSelectData.value=[];
-      const doc = ref({});
+      const doc = ref();
+      doc.value = {};
       const modalVisible = ref(false);
       const modalLoading = ref(false);
       const editor = new E('#content');
@@ -252,6 +253,7 @@
 
       const handleSave = () => {
         modalLoading.value=true;
+        doc.value.content = editor.txt.html();
         axios.post("http://127.0.0.1:8880/doc/save",doc.value).then((response)=>{
           modalLoading.value=false;
           const data = response.data; //data = CommonResp
