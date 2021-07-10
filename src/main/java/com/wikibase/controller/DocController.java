@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController //用来返回字符串；@Controller用来返回页面（前后端分离基本用不到）
@@ -43,9 +44,10 @@ public class DocController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public CommonResp delete(@PathVariable Long id){
+    public CommonResp delete(@PathVariable String id){
         CommonResp resp = new CommonResp<>();
-        docService.delete(id);
+        List<String> list = Arrays.asList(id.split(","));
+        docService.delete(list);
         return resp;
     }
 
