@@ -57,8 +57,10 @@ public class DocService {
         return pageResp;
     }
 
-    public List<DocResp> all(){
+    public List<DocResp> all(Long id){
         DocExample docExample = new DocExample();
+        DocExample.Criteria criteria = docExample.createCriteria();
+        criteria.andEbookIdEqualTo(id);
         docExample.setOrderByClause("sort asc");
         List<Doc> docList = docMapper.selectByExample(docExample);
 

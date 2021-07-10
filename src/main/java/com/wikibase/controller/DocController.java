@@ -21,10 +21,10 @@ public class DocController {
     @Autowired
     private DocService docService;
 
-    @GetMapping("/all")
-    public CommonResp all(){
+    @GetMapping("/all/{id}")
+    public CommonResp all(@PathVariable Long id){
         CommonResp<List<DocResp>> resp = new CommonResp<>();
-        List<DocResp> list = docService.all();
+        List<DocResp> list = docService.all(id);
         resp.setContent(list);
         return resp;
     }
