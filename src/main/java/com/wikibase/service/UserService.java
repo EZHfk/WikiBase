@@ -4,6 +4,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wikibase.domain.User;
 import com.wikibase.domain.UserExample;
+import com.wikibase.exception.BusinessException;
+import com.wikibase.exception.BusinessExceptionCode;
 import com.wikibase.mapper.UserMapper;
 import com.wikibase.req.UserQueryReq;
 import com.wikibase.req.UserSaveReq;
@@ -14,6 +16,7 @@ import com.wikibase.util.SnowFlake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
@@ -61,13 +64,19 @@ public class UserService {
         User user = CopyUtil.copy(req,User.class);
 
         if(ObjectUtils.isEmpty(req.getId())){
-            //New Post
-            user.setId(snowFlake.nextId());
-            userMapper.insert(user);
+            if(ObjectUtils.isEmpty(selectByLoginName(req.getLoginName()))){
+                //New Post
+                user.setId(snowFlake.nextId());
+                userMapper.insert(user);
+            }
+            else{
+                throw new BusinessException(BusinessExceptionCode.USER_LOGIN_NAME_EXIST);
+            }
         }
         else {
             //Update
-            userMapper.updateByPrimaryKey(user);
+            user.setLoginName(null);
+            userMapper.updateByPrimaryKeySelective(user);
         }
     }
 
@@ -76,5 +85,16 @@ public class UserService {
      */
     public void delete(Long id){
         userMapper.deleteByPrimaryKey(id);
+    }
+
+    public User selectByLoginName(String loginName){
+        UserExample userExample = new UserExample();
+        UserExample.Criteria criteria = userExample.createCriteria();
+        criteria.andLoginNameEqualTo(loginName);
+        List<User> userList = userMapper.selectByExample(userExample);
+        if(CollectionUtils.isEmpty(userList)){
+            return null;
+        }
+        return userList.get(0);
     }
 }
