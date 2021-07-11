@@ -7,12 +7,18 @@ import 'ant-design-vue/dist/antd.css';
 import * as Icons from '@ant-design/icons-vue';
 import axios from 'axios';
 import { message } from 'ant-design-vue';
+import {Tool} from "@/util/tool";
 
 /**
  * axios拦截器
  */
 axios.interceptors.request.use(function (config) {
     console.log('请求参数：', config);
+    const token = store.state.user.token;
+    if (Tool.isNotEmpty(token)) {
+        config.headers.token = token;
+        console.log("请求headers增加token:", token);
+    }
     return config;
 }, error => {
     return Promise.reject(error);
