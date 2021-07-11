@@ -8,8 +8,10 @@ import com.wikibase.exception.BusinessException;
 import com.wikibase.exception.BusinessExceptionCode;
 import com.wikibase.mapper.UserMapper;
 import com.wikibase.req.ResetPasswordReq;
+import com.wikibase.req.UserLoginReq;
 import com.wikibase.req.UserQueryReq;
 import com.wikibase.req.UserSaveReq;
+import com.wikibase.resp.UserLoginResp;
 import com.wikibase.resp.UserResp;
 import com.wikibase.resp.PageResp;
 import com.wikibase.util.CopyUtil;
@@ -103,5 +105,26 @@ public class UserService {
     public void resetPassword(ResetPasswordReq req){
         User user = CopyUtil.copy(req,User.class);
         userMapper.updateByPrimaryKeySelective(user);
+    }
+
+    public UserLoginResp login(UserLoginReq req){
+        User user = selectByLoginName(req.getLoginName());
+        if(ObjectUtils.isEmpty(user)){
+            // User Not Exists
+            LOG.info("User Not Exists, {}",req.getLoginName());
+            throw new BusinessException(BusinessExceptionCode.LOGIN_USER_ERROR);
+        }
+        else{
+            if(user.getPassword().equals(req.getPassword())){
+                // Login Success
+                UserLoginResp loginResp = CopyUtil.copy(user,UserLoginResp.class);
+                return loginResp;
+            }
+            else{
+                LOG.info("Password Incorrect, {}",req.getLoginName());
+                throw new BusinessException(BusinessExceptionCode.LOGIN_USER_ERROR);
+                // Password Incorrect
+            }
+        }
     }
 }

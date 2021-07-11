@@ -1,9 +1,11 @@
 package com.wikibase.controller;
 
 import com.wikibase.req.ResetPasswordReq;
+import com.wikibase.req.UserLoginReq;
 import com.wikibase.req.UserQueryReq;
 import com.wikibase.req.UserSaveReq;
 import com.wikibase.resp.CommonResp;
+import com.wikibase.resp.UserLoginResp;
 import com.wikibase.resp.UserResp;
 import com.wikibase.resp.PageResp;
 import com.wikibase.service.UserService;
@@ -48,6 +50,15 @@ public class UserController {
         req.setPassword(DigestUtils.md5DigestAsHex(req.getPassword().getBytes()));
         CommonResp resp = new CommonResp<>();
         userService.resetPassword(req);
+        return resp;
+    }
+
+    @PostMapping("/login")
+    public CommonResp login(@Valid @RequestBody UserLoginReq req){
+        req.setPassword(DigestUtils.md5DigestAsHex(req.getPassword().getBytes()));
+        CommonResp<UserLoginResp> resp = new CommonResp<>();
+        UserLoginResp loginResp = userService.login(req);
+        resp.setContent(loginResp);
         return resp;
     }
 
