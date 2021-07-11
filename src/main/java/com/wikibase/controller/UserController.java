@@ -9,18 +9,32 @@ import com.wikibase.resp.UserLoginResp;
 import com.wikibase.resp.UserResp;
 import com.wikibase.resp.PageResp;
 import com.wikibase.service.UserService;
+import com.wikibase.util.SnowFlake;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.concurrent.TimeUnit;
 
 @RestController //用来返回字符串；@Controller用来返回页面（前后端分离基本用不到）
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
+    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
+
+    @Resource
     private UserService userService;
+
+    @Resource
+    private RedisTemplate redisTemplate;
+
+    @Resource
+    private SnowFlake snowFlake;
 
     @GetMapping("/list")
     public CommonResp list(@Valid UserQueryReq req){
@@ -58,6 +72,10 @@ public class UserController {
         req.setPassword(DigestUtils.md5DigestAsHex(req.getPassword().getBytes()));
         CommonResp<UserLoginResp> resp = new CommonResp<>();
         UserLoginResp loginResp = userService.login(req);
+        Long token =snowFlake.nextId();
+        LOG.info("生成单点登录token：{}，并放入redis中", token);
+        loginResp.setToken(token.toString());
+        redisTemplate.opsForValue().set(token,loginResp,3600*24, TimeUnit.SECONDS);
         resp.setContent(loginResp);
         return resp;
     }

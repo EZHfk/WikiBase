@@ -32,7 +32,10 @@
                     关于我们
                 </router-link>
             </a-menu-item>
-            <a class="login-menu" @click="showLoginModal">
+            <a class="login-menu" v-show="user.id">
+                <span>Hello, {{user.name}}</span>
+            </a>
+            <a class="login-menu" v-show="!user.id" @click="showLoginModal">
                 <span>登录</span>
             </a>
         </a-menu>
@@ -56,6 +59,11 @@
 
 <script lang="ts">
     import { defineComponent, ref } from 'vue';
+    import axios from 'axios';
+    import {message} from 'ant-design-vue';
+
+    declare let hexMd5: any;
+    declare let KEY: any;
 
     export default defineComponent({
         name: 'the-header',
@@ -64,6 +72,9 @@
                 loginName: "test",
                 password: "test"
             });
+            const user = ref();
+            user.value={};
+
             const loginModalVisible = ref(false);
             const loginModalLoading = ref(false);
             const showLoginModal = () => {
@@ -72,6 +83,20 @@
 
             const login=()=>{
                 console.log("Start Login");
+                loginModalLoading.value = true;
+                loginUser.value.password = hexMd5(loginUser.value.password + KEY);
+                axios.post('http://127.0.0.1:8880/user/login', loginUser.value).then((response) => {
+                    loginModalLoading.value = false;
+                    const data = response.data;
+                    if (data.success) {
+                        loginModalVisible.value = false;
+                        message.success("登录成功！");
+                        user.value = data.content;
+                        // store.commit("setUser", data.content);
+                    } else {
+                        message.error(data.message);
+                    }
+                });
             };
 
             return {
@@ -79,8 +104,8 @@
                 loginModalLoading,
                 showLoginModal,
                 loginUser,
-                login
-                // user,
+                login,
+                user
                 // logout
             }
         }

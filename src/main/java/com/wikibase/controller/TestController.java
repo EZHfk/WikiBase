@@ -2,39 +2,68 @@ package com.wikibase.controller;
 
 import com.wikibase.domain.Test;
 import com.wikibase.service.TestService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-@RestController //用来返回字符串；@Controller用来返回页面（前后端分离基本用不到）
+@RestController
 public class TestController {
 
-    @Value("${test.hello:TEST}") //优先读配置项，没有就读：后的默认值
-    private String hello;
+    private static final Logger LOG = LoggerFactory.getLogger(TestController.class);
 
-    @Autowired
+    @Value("${test.hello:TEST}")
+    private String testHello;
+
+    @Resource
     private TestService testService;
 
+    @Resource
+    private RedisTemplate redisTemplate;
 
-    @GetMapping("")
-    public String welcome(){
-        return "Welcome to Spring";
-    }
     /**
-     * GET,POST,PUT,DELETE:增删改查
-     * @return String
+     * GET, POST, PUT, DELETE
+     *
+     * /user?id=1
+     * /user/1
+     * @return
      */
-    //@RequestMapping(value = "/hello",method = RequestMethod.GET)
+    // @PostMapping
+    // @PutMapping
+    // @DeleteMapping
+    // @RequestMapping(value = "/user/1", method = RequestMethod.GET)
+    // @RequestMapping(value = "/user/1", method = RequestMethod.DELETE)
     @GetMapping("/hello")
-    public String hello(){
-        return hello;
+    public String hello() {
+        return "Hello World!" + testHello;
+    }
+
+    @PostMapping("/hello/post")
+    public String helloPost(String name) {
+        return "Hello World! Post，" + name;
     }
 
     @GetMapping("/test/list")
-    public List<Test> list(){
+    public List<Test> list() {
         return testService.list();
+    }
+
+    @RequestMapping("/redis/set/{key}/{value}")
+    public String set(@PathVariable Long key, @PathVariable String value) {
+        redisTemplate.opsForValue().set(key, value, 3600, TimeUnit.SECONDS);
+        LOG.info("key: {}, value: {}", key, value);
+        return "success";
+    }
+
+    @RequestMapping("/redis/get/{key}")
+    public Object get(@PathVariable Long key) {
+        Object object = redisTemplate.opsForValue().get(key);
+        LOG.info("key: {}, value: {}", key, object);
+        return object;
     }
 }

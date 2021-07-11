@@ -12,6 +12,12 @@ spring:
     url: jdbc:mysql://wiki@localhost/wiki?characterEncoding=UTF8&autoReconnect=true&serverTimezone=Asia/Shanghai&allowMultiQueries=true
     username: wiki
 
+# Redis Config
+  redis:
+    host: r-uf6ljbcdaxobsifyctpd.redis.rds.aliyuncs.com
+    password: Redis000
+    port: 6379
+
 #Mybatis scan all mapper.xml
 mybatis:
   mapper-locations: classpath:/mapper/**/*.xml
@@ -22,3 +28,4 @@ logging:
     com:
       wikibase:
         mapper: trace
+
