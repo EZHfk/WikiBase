@@ -7,6 +7,7 @@ import com.wikibase.domain.UserExample;
 import com.wikibase.exception.BusinessException;
 import com.wikibase.exception.BusinessExceptionCode;
 import com.wikibase.mapper.UserMapper;
+import com.wikibase.req.ResetPasswordReq;
 import com.wikibase.req.UserQueryReq;
 import com.wikibase.req.UserSaveReq;
 import com.wikibase.resp.UserResp;
@@ -76,6 +77,7 @@ public class UserService {
         else {
             //Update
             user.setLoginName(null);
+            user.setPassword(null);
             userMapper.updateByPrimaryKeySelective(user);
         }
     }
@@ -96,5 +98,10 @@ public class UserService {
             return null;
         }
         return userList.get(0);
+    }
+
+    public void resetPassword(ResetPasswordReq req){
+        User user = CopyUtil.copy(req,User.class);
+        userMapper.updateByPrimaryKeySelective(user);
     }
 }

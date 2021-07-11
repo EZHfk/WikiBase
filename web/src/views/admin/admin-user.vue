@@ -32,11 +32,9 @@
       >
         <template v-slot:action="{ text, record }">
           <a-space size="small">
-            <router-link :to="'/admin/doc?userId=' + record.id">
-              <a-button type="primary">
-                重置密码
-              </a-button>
-            </router-link>
+            <a-button type="primary" @click="resetPassword(record)">
+              重置密码
+            </a-button>
             <a-button type="primary" @click="edit(record)">
               编辑
             </a-button>
@@ -83,7 +81,7 @@
   >
     <a-form :model="user" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
       <a-form-item label="新密码">
-        <a-input v-model:value="user.password" type="password"/>
+        <a-input v-model:value="user.password"/>
       </a-form-item>
     </a-form>
   </a-modal>
@@ -230,46 +228,39 @@
         });
       };
 
-      // const level1 =  ref();
-      // let categorys: any;
-      // /**
-      //  * 查询所有分类
-      //  **/
-      // const handleQueryCategory = () => {
-      //   loading.value = true;
-      //   axios.get("http://127.0.0.1:8880/category/all").then((response) => {
-      //     loading.value = false;
-      //     const data = response.data;
-      //     if (data.success) {
-      //       categorys = data.content;
-      //       console.log("原始数组：", categorys);
-      //
-      //       level1.value = [];
-      //       level1.value = Tool.array2Tree(categorys, 0);
-      //       console.log("树形结构：", level1.value);
-      //
-      //       // 加载完分类后，再加载用户，否则如果分类树加载很慢，则用户渲染会报错
-      //       handleQuery({
-      //         page: 1,
-      //         size: pagination.value.pageSize,
-      //       });
-      //     } else {
-      //       message.error(data.message);
-      //     }
-      //   });
-      // };
-      //
-      // const getCategoryName = (cid: number) => {
-      //   // console.log(cid)
-      //   let result = "";
-      //   categorys.forEach((item: any) => {
-      //     if (item.id === cid) {
-      //       // return item.name; // 注意，这里直接return不起作用
-      //       result = item.name;
-      //     }
-      //   });
-      //   return result;
-      // };
+      // -------- 重置密码 ---------
+      const resetModalVisible = ref(false);
+      const resetModalLoading = ref(false);
+      const handleResetModalOk = () => {
+        resetModalLoading.value = true;
+
+        user.value.password = hexMd5(user.value.password + KEY);
+
+        axios.post("http://127.0.0.1:8880/user/reset-password", user.value).then((response) => {
+          resetModalLoading.value = false;
+          const data = response.data; // data = commonResp
+          if (data.success) {
+            resetModalVisible.value = false;
+
+            // 重新加载列表
+            handleQuery({
+              page: pagination.value.current,
+              size: pagination.value.pageSize,
+            });
+          } else {
+            message.error(data.message);
+          }
+        });
+      };
+
+      /**
+       * 重置密码
+       */
+      const resetPassword = (record: any) => {
+        resetModalVisible.value = true;
+        user.value = Tool.copy(record);
+        user.value.password = null;
+      };
 
       onMounted(() => {
         handleQuery({
@@ -297,10 +288,10 @@
 
         handleDelete,
 
-        // resetModalVisible,
-        // resetModalLoading,
-        // handleResetModalOk,
-        // resetPassword
+        resetModalVisible,
+        resetModalLoading,
+        handleResetModalOk,
+        resetPassword
       }
     }
   });
