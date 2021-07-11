@@ -32,6 +32,16 @@
                     关于我们
                 </router-link>
             </a-menu-item>
+            <a-popconfirm
+                    title="确认退出登录?"
+                    ok-text="是"
+                    cancel-text="否"
+                    @confirm="logout()"
+            >
+                <a class="login-menu" v-show="user.id">
+                    <span>退出登录</span>
+                </a>
+            </a-popconfirm>
             <a class="login-menu" v-show="user.id">
                 <span>Hello, {{user.name}}</span>
             </a>
@@ -98,14 +108,28 @@
                 });
             };
 
+            // 退出登录
+            const logout = () => {
+                console.log("退出登录开始");
+                axios.get('http://127.0.0.1:8880/user/logout/' + user.value.token).then((response) => {
+                    const data = response.data;
+                    if (data.success) {
+                        message.success("退出登录成功！");
+                        store.commit("setUser", {});
+                    } else {
+                        message.error(data.message);
+                    }
+                });
+            };
+
             return {
                 loginModalVisible,
                 loginModalLoading,
                 showLoginModal,
                 loginUser,
                 login,
-                user
-                // logout
+                user,
+                logout
             }
         }
     });

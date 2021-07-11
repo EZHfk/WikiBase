@@ -14,8 +14,7 @@ spring:
 
 # Redis Config
   redis:
-    host: r-uf6ljbcdaxobsifyctpd.redis.rds.aliyuncs.com
-    password: Redis000
+    host: 127.0.0.1
     port: 6379
 
 #Mybatis scan all mapper.xml
