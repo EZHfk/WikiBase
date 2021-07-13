@@ -72,10 +72,8 @@ public class EbookService {
      */
     public void save(EbookSaveReq req){
         LOG.info("COVER: {}",req.getCover());
-        String file = req.getCover();
-        byte[] bytes = file.getBytes();
-        String fileName = file;
-        Path path = Paths.get("/images/");
+        String fileName = req.getCover();
+        Path path = Paths.get("/images/"+fileName);
 
         LOG.info("PATH: {}", path.toString());
         req.setCover(path.toString());
@@ -97,7 +95,7 @@ public class EbookService {
 
     public void saveImage(MultipartFile file) throws IOException {
         LOG.info(file.toString());
-        Path path = Paths.get("web/public/images/cover1.png");
+        Path path = Paths.get("web/public/images/"+file.getOriginalFilename());
 
         Files.write(path,file.getBytes());
     }
