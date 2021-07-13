@@ -1,5 +1,4 @@
-
-<template>
+<template xmlns:th="http://www.w3.org/1999/xhtml">
   <a-layout>
     <a-layout-content
             :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
@@ -62,6 +61,17 @@
     </a-layout-content>
   </a-layout>
 
+<!--  <form-->
+<!--        enctype="multipart/form-data"-->
+<!--  >-->
+<!--    <div>-->
+
+<!--      <label>Photos: </label>-->
+<!--      <input type="file" name="image" accept="image/png, image/jpeg" />-->
+<!--    </div>-->
+<!--    <button onclic>Save</button>-->
+<!--  </form>-->
+
   <a-modal
           title="电子书表单"
           v-model:visible="modalVisible"
@@ -70,7 +80,25 @@
   >
     <a-form :model="ebook" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
       <a-form-item label="封面">
-        <a-input v-model:value="ebook.cover" />
+        <a-button @click="saveImage(image)">Save</a-button>
+        <a-upload
+                v-model:file-list="fileList"
+                name="avatar"
+                list-type="picture-card"
+                class="avatar-uploader"
+                :show-upload-list="false"
+                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                :before-upload="beforeUpload"
+                @change="handleChange"
+        >
+          <img v-if="imageUrl" :src="imageUrl" alt="avatar" />
+          <div v-else>
+            <loading-outlined v-if="loading"></loading-outlined>
+            <plus-outlined v-else></plus-outlined>
+            <div class="ant-upload-text">Upload</div>
+          </div>
+        </a-upload>
+
       </a-form-item>
       <a-form-item label="名称">
         <a-input v-model:value="ebook.name" />
@@ -94,13 +122,79 @@
   import axios from 'axios';
   import { message } from 'ant-design-vue';
   import {Tool} from "@/util/tool";
+  import { PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue';
 
+  interface FileItem {
+    uid: string;
+    name?: string;
+    status?: string;
+    response?: string;
+    url?: string;
+    type?: string;
+    size: number;
+    originFileObj: any;
+  }
+
+  interface FileInfo {
+    file: FileItem;
+    fileList: FileItem[];
+  }
+  function getBase64(img: Blob, callback: (base64Url: string) => void) {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => callback(reader.result as string));
+    reader.readAsDataURL(img);
+  }
   export default defineComponent({
     name: 'AdminEbook',
+    components:{
+      LoadingOutlined,
+      PlusOutlined,
+    },
     setup() {
       const param = ref();
       param.value = {};
       const ebooks = ref();
+      // const formData = new FormData();
+      let file: any;
+
+      const fileList = ref([]);
+      const loading1 = ref<boolean>(false);
+      const imageUrl = ref<string>('');
+
+      const handleChange = (info: FileInfo) => {
+        if (info.file.status === 'uploading') {
+          loading1.value = true;
+          return;
+        }
+        if (info.file.status === 'done') {
+          // Get this url from response in real world.
+          getBase64(info.file.originFileObj, (base64Url: string) => {
+            ebook.value.cover = info.file.name;
+            imageUrl.value = base64Url;
+            loading1.value = false;
+          });
+          file = info.file.originFileObj;
+        }
+        if (info.file.status === 'error') {
+          loading1.value = false;
+          message.error('upload error');
+        }
+      };
+
+      const beforeUpload = (file: FileItem) => {
+        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+        if (!isJpgOrPng) {
+          message.error('You can only upload JPG file!');
+        }
+        const isLt2M = file.size / 1024 / 1024 < 2;
+        if (!isLt2M) {
+          message.error('Image must smaller than 2MB!');
+        }
+        return isJpgOrPng && isLt2M;
+      };
+
+
+
       const pagination = ref({
         current: 1,
         pageSize: 4,
@@ -270,6 +364,14 @@
         });
       };
 
+      const saveImage = ()=>{
+        const formData = new FormData()
+        formData.append('file',file);
+        axios.post("http://127.0.0.1:8880/ebook/saveImage",formData).then((response)=>{
+          console.log("OK");
+        });
+      }
+
       const getCategoryName = (cid: number) => {
         // console.log(cid)
         let result = "";
@@ -306,7 +408,14 @@
         categoryIds,
         level1,
 
-        handleDelete
+        handleDelete,
+
+        fileList,
+        loading1,
+        imageUrl,
+        handleChange,
+        beforeUpload,
+        saveImage
       }
     }
   });

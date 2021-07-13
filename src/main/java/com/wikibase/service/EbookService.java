@@ -11,12 +11,22 @@ import com.wikibase.resp.EbookResp;
 import com.wikibase.resp.PageResp;
 import com.wikibase.util.CopyUtil;
 import com.wikibase.util.SnowFlake;
+import org.apache.tomcat.util.http.fileupload.FileUpload;
+import org.apache.tomcat.util.http.fileupload.FileUploadBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @Service
@@ -61,6 +71,17 @@ public class EbookService {
      * Save Post Edit
      */
     public void save(EbookSaveReq req){
+        LOG.info("COVER: {}",req.getCover());
+        String file = req.getCover();
+        byte[] bytes = file.getBytes();
+        String fileName = file;
+        Path path = Paths.get("/images/");
+
+        LOG.info("PATH: {}", path.toString());
+        req.setCover(path.toString());
+        //Files.write(path, bytes);
+        System.out.println(fileName+"\n");
+
         Ebook ebook = CopyUtil.copy(req,Ebook.class);
 
         if(ObjectUtils.isEmpty(req.getId())){
@@ -70,8 +91,15 @@ public class EbookService {
         }
         else {
             //Update
-            ebookMapper.updateByPrimaryKey(ebook);
+            ebookMapper.updateByPrimaryKeySelective(ebook);
         }
+    }
+
+    public void saveImage(MultipartFile file) throws IOException {
+        LOG.info(file.toString());
+        Path path = Paths.get("web/public/images/cover1.png");
+
+        Files.write(path,file.getBytes());
     }
 
     /**

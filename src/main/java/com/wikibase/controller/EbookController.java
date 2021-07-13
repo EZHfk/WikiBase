@@ -8,8 +8,11 @@ import com.wikibase.resp.PageResp;
 import com.wikibase.service.EbookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
 
 @RestController //用来返回字符串；@Controller用来返回页面（前后端分离基本用不到）
 @RequestMapping("/ebook")
@@ -30,6 +33,13 @@ public class EbookController {
     public CommonResp save(@Valid @RequestBody EbookSaveReq req){
         CommonResp resp = new CommonResp<>();
         ebookService.save(req);
+        return resp;
+    }
+
+    @PostMapping(value = "/saveImage")
+    public CommonResp save(@RequestParam("file") MultipartFile file) throws IOException {
+        CommonResp resp = new CommonResp<>();
+        ebookService.saveImage(file);
         return resp;
     }
 
