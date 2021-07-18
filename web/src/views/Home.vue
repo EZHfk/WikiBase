@@ -16,6 +16,7 @@
                 </template>
                 <a-menu-item v-for="child in item.children" :key="child.id">
                     <MailOutlined /><span>{{child.name}}</span>
+
                 </a-menu-item>
             </a-sub-menu>
             <a-menu-item key="tip" :disabled="true">
