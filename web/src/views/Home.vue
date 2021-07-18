@@ -25,7 +25,7 @@
     </a-layout-sider>
         <a-layout-content :style="{ padding: '0 24px', minHeight: '280px' }">
 
-    </a-layout-content>
+        </a-layout-content>
         <div class="welcome" v-show="isShowWelcome">
             <h1>WELCOME!</h1>
         </div>
